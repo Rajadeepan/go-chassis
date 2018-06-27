@@ -45,6 +45,7 @@ import (
 	"github.com/ServiceComb/go-chassis/config-center"
 	"github.com/ServiceComb/go-chassis/core/archaius"
 	"github.com/ServiceComb/go-chassis/core/metadata"
+	"github.com/ServiceComb/go-chassis/core/egress"
 )
 
 var goChassis *chassis
@@ -142,6 +143,11 @@ func (c *chassis) initialize() error {
 	// router needs get configs from config-center when init
 	// so it must init after bootstrap
 	err = router.Init()
+	if err != nil {
+		return err
+	}
+
+	err = egress.Init()
 	if err != nil {
 		return err
 	}

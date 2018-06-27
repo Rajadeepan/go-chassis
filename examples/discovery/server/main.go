@@ -8,6 +8,7 @@ import (
 	"github.com/ServiceComb/go-chassis/core/server"
 	"github.com/ServiceComb/go-chassis/examples/schemas"
 	_ "github.com/ServiceComb/go-chassis/healthz/provider"
+	"github.com/ServiceComb/go-chassis/core/egress"
 )
 
 //if you use go run main.go instead of binary run, plz export CHASSIS_HOME=/{path}/{to}/discovery/server/
@@ -22,4 +23,7 @@ func main() {
 		return
 	}
 	chassis.Run()
+	egress.Match("www.google.com")
+	//egress.SearchinMap("www.google.com")
+
 }
