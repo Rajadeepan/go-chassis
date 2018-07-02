@@ -6,8 +6,8 @@ type  EgressConfig struct {
 }
 
 type EgressRule struct {
-	Host  []string      `yaml:"hosts"`
-	Ports []*EgressPort `yaml:"ports"`
+	Hosts  []string      `yaml:"hosts"`
+	Ports  []*EgressPort `yaml:"ports"`
 
 }
 

@@ -15,6 +15,7 @@ import (
 	_ "github.com/ServiceComb/go-chassis/client/highway"
 	_ "github.com/ServiceComb/go-chassis/core/router/cse"
 	_ "github.com/ServiceComb/go-chassis/core/router/pilot"
+	_ "github.com/ServiceComb/go-chassis/core/egress/cse"
 	// rest package handle rest apis
 	_ "github.com/ServiceComb/go-chassis/client/rest"
 	// archaius package to get the conguration info fron diffent configuration sources

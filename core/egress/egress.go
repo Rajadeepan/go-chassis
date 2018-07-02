@@ -3,109 +3,105 @@ package egress
 import (
 	"github.com/ServiceComb/go-chassis/core/config/model"
 	"sync"
-	"github.com/ServiceComb/go-chassis/core/config"
-	"fmt"
 	"regexp"
+	"errors"
 )
 
 var lock sync.RWMutex
 
-//FetchRouteRule return all rules
-func  FetchEgressRule() map[string][]*model.EgressRule {
-	return GetEgressRule()
+var plainHosts = make(map[string]*model.EgressRule)
+var regexHosts = make(map[string]*model.EgressRule)
+
+
+
+//Egress return egress rule, you can also set custom egress rule
+type Egress interface {
+	Init()error
+	SetEgressRule(map[string][]*model.EgressRule)
+	FetchEgressRule() map[string][]*model.EgressRule
+	FetchEgressRuleByName(string) []*model.EgressRule
 }
 
-// GetRouteRule get route rule
-func GetEgressRule() map[string][]*model.EgressRule {
-	lock.RLock()
-	defer lock.RUnlock()
-	return config.EgressDefinition.Destinations;
+// ErrNoExist means if there is no egress implementation
+var ErrNoExist = errors.New("Egress not exists")
+var egressServices = make(map[string]func() (Egress, error))
+
+// DefaultEgress is current egress implementation
+var DefaultEgress Egress
+
+// InstallEgressService install router service for developer
+func InstallEgressService(name string, f func() (Egress, error)) {
+	egressServices[name] = f
 }
 
-
-func hostallslices(){
-	EgressRules := GetEgressRule()
-	for key, EgressRule := range EgressRules {
-		fmt.Println("Raj Values",key,EgressRule)
+//BuildEgress create a Egress
+func BuildEgress(name string) error {
+	f, ok := egressServices[name]
+	if !ok {
+		return ErrNoExist
 	}
+	r, err := f()
+	if err != nil {
+		return err
+	}
+	DefaultEgress = r
+	return nil
 }
 
 //Check Egress rule matches
 func Match(hostname string) (bool, *model.EgressRule){
-	EgressRules := GetEgressRule()
-	for key, egressRules := range EgressRules {
-		fmt.Println("Raj Values",key,egressRules)
+	EgressRules := DefaultEgress.FetchEgressRule()
+	for _, egressRules := range EgressRules {
 		for _, egress := range  egressRules {
-			fmt.Println("Raj egress host ", egress.Host)
-			fmt.Println("Raj egress ports ", egress.Ports)
-			for _, host := range egress.Host {
-				if len(host) > 1 {
-					if string(host[0]) != "*" {
-						fmt.Println("The first character is not *", host)
+			for _, host := range egress.Hosts {
+				// Check host length greater than 0 and does not
+				// start with *
+				if len(host) > 0 &&  string(host[0]) != "*"{
 						if host == hostname {
-							fmt.Println("Raj : the value of host from configuration and from the request", host, hostname)
-							fmt.Println("1. MATCHED")
 							return true, egress
 						}
 					} else if string(host[0]) == "*" {
-						fmt.Println("THe first character is *")
 						substring := host[1:]
-						fmt.Println("llllll", substring)
-						fmt.Println("iiii", substring+"$")
-						match, err := regexp.MatchString(substring+"$", hostname);
-						fmt.Println("oooooooo", match, err)
+						match, _ := regexp.MatchString(substring+"$", hostname)
 						if match == true {
-							fmt.Println("2. MATCHED")
 							return true, egress
 						}
 					}
 				}
 			}
 		}
-	}
 
 	return false, nil
 }
 
 //Check Egress rule matches
-func Match1() (map[string]*model.EgressRule, map[string]*model.EgressRule){
-
-	searchstructure := make(map[string]*model.EgressRule)
-	regexstructure := make(map[string]*model.EgressRule)
-
-	EgressRules := GetEgressRule()
-	for key, egressRules := range EgressRules {
-		fmt.Println("Raj Values",key,egressRules)
+func SplitEgressRules() (map[string]*model.EgressRule, map[string]*model.EgressRule){
+	EgressRules := DefaultEgress.FetchEgressRule()
+	for _, egressRules := range EgressRules {
 		for _, egress := range  egressRules{
-			fmt.Println("Raj egress host ", egress.Host)
-			fmt.Println("Raj egress ports ", egress.Ports)
-			for _, host := range egress.Host{
+
+			for _, host := range egress.Hosts{
 				if len(host) > 1 && string(host[0]) != "*" {
-					fmt.Println("Raj: The value of string 0", string(host[0]))
-					searchstructure[host] = egress
+					plainHosts[host] = egress
 				}else if string(host[0]) == "*"{
 					substring := host[1:]
-					regexstructure[substring] = egress
+					regexHosts[substring] = egress
 				}
 			}
 		}
 	}
-    fmt.Println("Raj: ", searchstructure)
-	return searchstructure, regexstructure
+
+	return plainHosts, regexHosts
 }
 
-func SearchinMap(hostname string)(bool, *model.EgressRule){
-	searchstruct, regexstructure := Match1()
-
-	if val, ok := searchstruct[hostname]; ok{
-		fmt.Println("3. MATCHED")
+func MatchHost(hostname string)(bool, *model.EgressRule){
+	if val, ok := plainHosts[hostname]; ok{
 		return true, val
 	}
 
-	for key, value := range regexstructure {
+	for key, value := range regexHosts {
 			match, _ := regexp.MatchString(key+"$", hostname);
 			if match == true {
-				fmt.Println("3. MATCHED")
 				return true, value
 
 		}

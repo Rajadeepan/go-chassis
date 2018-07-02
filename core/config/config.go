@@ -209,22 +209,16 @@ func parseRouterConfig(file string) error {
 
 // parseEgressConfig is unmarshal the paas lager configuration file(lager.yaml)
 func parseEgressConfig(file string) error {
-	fmt.Println("Raj: inside parseEgress config %s", file)
-	lager.Logger.Infof("Raj: parseEgress config %s", file)
 	EgressDefinition = &model.EgressConfig{}
 	err := unmarshalYamlFile(file, EgressDefinition)
 	if err != nil && !os.IsNotExist(err) {
 		return &pathError{Path: file, Err: err}
 	}
-	lager.Logger.Infof("Raj: parseEgress config and egreeconfig value %v", EgressDefinition)
-	lager.Logger.Infof("Raj: parseEgress config and egreeconfig Destinations value %v", EgressDefinition.Destinations)
-	lager.Logger.Infof("Raj:  value %v", EgressDefinition.Destinations)
 	return err
 }
 
 func unmarshalYamlFile(file string, target interface{}) error {
 	content, err := ioutil.ReadFile(file)
-    fmt.Println("Raj %s", string(content))
 	if err != nil {
 		return err
 	}
