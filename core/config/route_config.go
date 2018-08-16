@@ -2,6 +2,7 @@ package config
 
 import "github.com/ServiceComb/go-chassis/core/config/model"
 
+
 //DefaultRouterType set the default router type
 const DefaultRouterType = "cse"
 

@@ -39,6 +39,7 @@ func setChanForPilot(k string) bool {
 
 // InitPilotFetcher init the config mgr and add several sources
 func InitPilotFetcher(o router.Options) error {
+	fmt.Println("Raj: InitPilotFetcher")
 	d := eventsystem.NewDispatcher()
 
 	// register and init pilot fetcher
@@ -125,6 +126,7 @@ func (r *pilotSource) GetConfigurationByKey(k string) (interface{}, error) {
 
 // get router config from pilot
 func (r *pilotSource) getRouterConfigFromPilot() (*model.RouterConfig, error) {
+	fmt.Println("Raj: gettting configuration from pilot")
 	routeRules := &model.RouterConfig{
 		Destinations: map[string][]*model.RouteRule{},
 	}
