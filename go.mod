@@ -11,8 +11,8 @@ require (
 	github.com/emicklei/go-restful v2.8.0+incompatible
 	github.com/emicklei/go-restful-swagger12 v0.0.0-20170208215640-dcef7f557305
 
-	github.com/go-chassis/go-archaius v0.0.0-20181108111652-ab19b4eae276
-	github.com/go-chassis/go-cc-client v0.0.0-20181102101915-dea430061a34
+	github.com/go-chassis/go-archaius v0.0.0-20181119064113-720d998498f3
+	github.com/go-chassis/go-cc-client v0.0.0-20181109091810-e4f730e7ed13
 	github.com/go-chassis/go-sc-client v0.0.0-20181114031726-ee9485093d80
 	github.com/go-chassis/paas-lager v0.0.0-20181123014243-005283cca84c
 	github.com/go-logfmt/logfmt v0.3.0 // indirect
